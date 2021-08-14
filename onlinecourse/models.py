@@ -96,15 +96,17 @@ class Enrollment(models.Model):
 
 
 class Question(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     lesson_id = models.ForeignKey(Lesson, on_delete=models.CASCADE) 
     question_text = models.TextField()
     grade = models.FloatField(default=0.0)
 
     # A sample model method to calculate if learner get the score of the question
     def is_get_score(self, selected_ids):
-        all_answers = self.choice_set.filter(is_correct=True).count()
-        selected_correct = self.choice_set.filter(is_correct=True, id__in=selected_ids).count()
-        if all_answers == selected_correct:
+        all_answers = self.choice_set.filter(correct=True).count()
+        all_selected = self.choice_set.filter(id__in=selected_ids).count()
+        selected_correct = self.choice_set.filter(correct=True, id__in=selected_ids).count()
+        if all_answers == selected_correct and all_selected == selected_correct:
             return True
         else:
             return False
@@ -113,7 +115,7 @@ class Question(models.Model):
 class Choice(models.Model):
     question_id = models.ForeignKey(Question, on_delete=models.CASCADE)
     choice_text = models.TextField()
-    is_correct = models.BooleanField(default=True)
+    correct = models.BooleanField(default=True)
 
 
 # The submission model
